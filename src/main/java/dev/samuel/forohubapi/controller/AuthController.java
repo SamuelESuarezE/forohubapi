@@ -1,6 +1,6 @@
 package dev.samuel.forohubapi.controller;
 
-import dev.samuel.forohubapi.config.security.TokenService;
+import dev.samuel.forohubapi.service.TokenService;
 import dev.samuel.forohubapi.dto.LoginDTO;
 import dev.samuel.forohubapi.dto.TokenJWTDTO;
 import dev.samuel.forohubapi.model.User;

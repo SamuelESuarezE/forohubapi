@@ -1,6 +1,7 @@
 package dev.samuel.forohubapi.config.security;
 
 import dev.samuel.forohubapi.repository.UserRepository;
+import dev.samuel.forohubapi.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

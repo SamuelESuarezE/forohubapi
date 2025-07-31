@@ -1,10 +1,12 @@
-package dev.samuel.forohubapi.config.security;
+package dev.samuel.forohubapi.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.samuel.forohubapi.model.User;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,18 @@ public class TokenService {
         } catch (JWTVerificationException e) {
             throw new RuntimeException("Error verifying the JWT token.", e);
         }
+    }
+
+    public Long getUserIdFromRequest(HttpServletRequest req) {
+        String authHeader = req.getHeader("Authorization");
+        String tokenJWT = authHeader.replace("Bearer ", "");
+
+        Algorithm algorithm = Algorithm.HMAC256(secret);
+        DecodedJWT decodedJWT = JWT.require(algorithm)
+                .build()
+                .verify(tokenJWT);
+
+        return decodedJWT.getClaim("userId").asLong();
     }
 
 }
