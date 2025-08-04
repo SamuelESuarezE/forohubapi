@@ -17,11 +17,11 @@ public class ErrorManager {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
-    public ErrorResponse handleNotFound() {
+    public ErrorResponse handleNotFound(EntityNotFoundException e) {
         return new ErrorResponse(
                 new Timestamp(System.currentTimeMillis()),
                 HttpStatus.NOT_FOUND.value(),
-                "Entity not found"
+                e.getMessage()
         );
     }
 
