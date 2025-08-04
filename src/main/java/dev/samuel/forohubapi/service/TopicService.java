@@ -1,6 +1,7 @@
 package dev.samuel.forohubapi.service;
 
 import dev.samuel.forohubapi.dto.TopicCreateDTO;
+import dev.samuel.forohubapi.dto.TopicDTO;
 import dev.samuel.forohubapi.exceptions.DuplicatedResourceException;
 import dev.samuel.forohubapi.model.Topic;
 import dev.samuel.forohubapi.repository.TopicRepository;
@@ -36,5 +37,9 @@ public class TopicService {
         var topic = new Topic(data, user);
         repository.save(topic);
         return topic;
+    }
+
+    public Topic getTopicById(Long id) {
+        return repository.getReferenceById(id);
     }
 }

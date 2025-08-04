@@ -1,6 +1,8 @@
 package dev.samuel.forohubapi.controller;
 
 import dev.samuel.forohubapi.dto.TopicDTO;
+import dev.samuel.forohubapi.dto.TopicWithCommentsDTO;
+import dev.samuel.forohubapi.service.CommentService;
 import dev.samuel.forohubapi.service.TokenService;
 import dev.samuel.forohubapi.dto.TopicCreateDTO;
 import dev.samuel.forohubapi.service.TopicService;
@@ -19,16 +21,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TopicController {
 
     private final TopicService service;
+    private final CommentService commentService;
     private final TokenService tokenService;
 
-    public TopicController(TopicService service, TokenService tokenService) {
+    public TopicController(TopicService service, CommentService commentService, TokenService tokenService) {
         this.service = service;
+        this.commentService = commentService;
         this.tokenService = tokenService;
     }
 
     @GetMapping
     public Page<TopicDTO> getAllTopics(@PageableDefault(size = 10) Pageable pageable, Sort sort) {
         return service.getAllTopics(pageable).map(TopicDTO::new);
+    }
+
+    @GetMapping("/{id}")
+    public TopicWithCommentsDTO getTopicById(@PathVariable Long id) {
+        var topic = service.getTopicById(id);
+        var comments = commentService.getCommentsByTopicId(id);
+        return new TopicWithCommentsDTO(topic, comments);
     }
 
     @PostMapping

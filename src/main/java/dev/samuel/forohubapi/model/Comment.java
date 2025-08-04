@@ -1,5 +1,6 @@
 package dev.samuel.forohubapi.model;
 
+import dev.samuel.forohubapi.dto.CommentCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,4 +21,10 @@ public class Comment {
 
     @ManyToOne
     private User user;
+
+    public Comment(CommentCreateDTO data, User user, Topic topic) {
+        this.message = data.message();
+        this.user = user;
+        this.topic = topic;
+    }
 }

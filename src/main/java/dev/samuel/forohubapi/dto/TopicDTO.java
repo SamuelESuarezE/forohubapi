@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public record TopicDTO(
         Long id,
-        Long userId,
+        Long user_id,
         String title,
         String message,
         LocalDate date,
