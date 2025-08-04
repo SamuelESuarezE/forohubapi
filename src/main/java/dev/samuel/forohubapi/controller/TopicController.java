@@ -27,14 +27,12 @@ public class TopicController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TopicDTO>> getAllTopics(@PageableDefault(size = 10) Pageable pageable, Sort sort) {
-        var page = service.getAllTopics(pageable).map(TopicDTO::new);
-
-        return ResponseEntity.ok(page);
+    public Page<TopicDTO> getAllTopics(@PageableDefault(size = 10) Pageable pageable, Sort sort) {
+        return service.getAllTopics(pageable).map(TopicDTO::new);
     }
 
     @PostMapping
-    public ResponseEntity<TopicDTO> getUserId(@RequestBody @Valid TopicCreateDTO data, HttpServletRequest req, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<TopicDTO> createTopic(@RequestBody @Valid TopicCreateDTO data, HttpServletRequest req, UriComponentsBuilder uriComponentsBuilder) {
         var userId = tokenService.getUserIdFromRequest(req);
         var topic = service.createTopic(data, userId);
 
