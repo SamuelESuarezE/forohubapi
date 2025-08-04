@@ -1,5 +1,6 @@
 package dev.samuel.forohubapi.model;
 
+import dev.samuel.forohubapi.dto.TopicCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,4 +25,12 @@ public class Topic {
 
     @ManyToOne
     private User user;
+
+    public Topic(TopicCreateDTO data, User user) {
+        this.title = data.title();
+        this.message = data.message();
+        this.date = LocalDate.now();
+        this.status = TopicStatus.OPEN;
+        this.user = user;
+    }
 }
