@@ -1,6 +1,7 @@
 package dev.samuel.forohubapi.controller;
 
 import dev.samuel.forohubapi.dto.TopicDTO;
+import dev.samuel.forohubapi.dto.TopicUpdateDTO;
 import dev.samuel.forohubapi.dto.TopicWithCommentsDTO;
 import dev.samuel.forohubapi.service.CommentService;
 import dev.samuel.forohubapi.service.TokenService;
@@ -13,8 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/topic")
@@ -42,13 +46,24 @@ public class TopicController {
         return new TopicWithCommentsDTO(topic, comments);
     }
 
+    @Transactional
     @PostMapping
     public ResponseEntity<TopicDTO> createTopic(@RequestBody @Valid TopicCreateDTO data, HttpServletRequest req, UriComponentsBuilder uriComponentsBuilder) {
         var userId = tokenService.getUserIdFromRequest(req);
         var topic = service.createTopic(data, userId);
 
-        var uri = uriComponentsBuilder.path("/topic/{id}").buildAndExpand(topic.getId()).toUri();
+        return ResponseEntity.created(uriBuildFromId(topic.getId(), uriComponentsBuilder)).body(new TopicDTO(topic));
+    }
 
-        return ResponseEntity.created(uri).body(new TopicDTO(topic));
+    @Transactional
+    @PutMapping("/{id}")
+    public TopicDTO updateTopic(@PathVariable Long id, @RequestBody @Valid TopicUpdateDTO data, HttpServletRequest req) {
+        var topic = service.updateTopic(id, data, tokenService.getUserIdFromRequest(req));
+
+        return new TopicDTO(topic);
+    }
+
+    private URI uriBuildFromId(Long id, UriComponentsBuilder uriComponentsBuilder) {
+        return uriComponentsBuilder.path("/topic/{id}").buildAndExpand(id).toUri();
     }
 }

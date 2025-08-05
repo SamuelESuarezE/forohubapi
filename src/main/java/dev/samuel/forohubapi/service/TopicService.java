@@ -2,10 +2,14 @@ package dev.samuel.forohubapi.service;
 
 import dev.samuel.forohubapi.dto.TopicCreateDTO;
 import dev.samuel.forohubapi.dto.TopicDTO;
+import dev.samuel.forohubapi.dto.TopicUpdateDTO;
 import dev.samuel.forohubapi.exceptions.DuplicatedResourceException;
+import dev.samuel.forohubapi.exceptions.ForbiddenActionException;
 import dev.samuel.forohubapi.model.Topic;
 import dev.samuel.forohubapi.repository.TopicRepository;
 import dev.samuel.forohubapi.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,11 +31,7 @@ public class TopicService {
     }
 
     public Topic createTopic(TopicCreateDTO data, Long userId) {
-        var sameTopicFound = repository.findAllByTitleAndMessage(data.title(), data.message());
-
-        if (sameTopicFound.isPresent()) {
-            throw new DuplicatedResourceException("Duplicated topic with the same title and message.");
-        }
+        validateDuplicatedTopic(data.title(), data.message());
 
         var user = userRepository.getReferenceById(userId);
         var topic = new Topic(data, user);
@@ -40,6 +40,24 @@ public class TopicService {
     }
 
     public Topic getTopicById(Long id) {
-        return repository.getReferenceById(id);
+        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Topic with ID " + id + " not found"));
+    }
+
+    public void validateDuplicatedTopic(String title, String message) {
+        if (title == null || message == null) return;
+
+        var sameTopicFound = repository.findAllByTitleAndMessage(title, message).isPresent();
+
+        if (sameTopicFound) {
+            throw new DuplicatedResourceException("Duplicated topic with the same title and message.");
+        }
+    }
+
+    public Topic updateTopic(Long id, TopicUpdateDTO data, Long userId) {
+        var topic = getTopicById(id);
+        if (!topic.getUser().getId().equals(userId)) throw new ForbiddenActionException("You don't have permission to update this topic.");
+        validateDuplicatedTopic(data.title(), data.message());
+        topic.update(data);
+        return topic;
     }
 }
