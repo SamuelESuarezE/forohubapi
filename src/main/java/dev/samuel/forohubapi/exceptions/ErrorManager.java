@@ -2,15 +2,12 @@ package dev.samuel.forohubapi.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @RestControllerAdvice
 public class ErrorManager {
@@ -22,6 +19,16 @@ public class ErrorManager {
                 new Timestamp(System.currentTimeMillis()),
                 HttpStatus.NOT_FOUND.value(),
                 e.getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
+        return new ErrorResponse(
+                new Timestamp(System.currentTimeMillis()),
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage()
         );
     }
 
@@ -47,5 +54,23 @@ public class ErrorManager {
         );
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ErrorResponse handleForbiddenAction(ForbiddenActionException exception) {
+        return new ErrorResponse(
+                new Timestamp(System.currentTimeMillis()),
+                HttpStatus.FORBIDDEN.value(),
+                exception.getMessage()
+        );
+    }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse handleUnknownError(Exception exception) {
+        return new ErrorResponse(
+                new Timestamp(System.currentTimeMillis()),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Unexpected error, please try again later."
+        );
+    }
 }
