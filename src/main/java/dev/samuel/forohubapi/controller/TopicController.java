@@ -63,6 +63,13 @@ public class TopicController {
         return new TopicDTO(topic);
     }
 
+    @Transactional
+    @DeleteMapping("/{id}")
+    public TopicDTO deleteTopic(@PathVariable Long id, HttpServletRequest req) {
+        var topic = service.deleteTopic(id, tokenService.getUserIdFromRequest(req));
+        return new TopicDTO(topic);
+    }
+
     private URI uriBuildFromId(Long id, UriComponentsBuilder uriComponentsBuilder) {
         return uriComponentsBuilder.path("/topic/{id}").buildAndExpand(id).toUri();
     }

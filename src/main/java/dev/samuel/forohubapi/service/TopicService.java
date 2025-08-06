@@ -43,7 +43,22 @@ public class TopicService {
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Topic with ID " + id + " not found"));
     }
 
-    public void validateDuplicatedTopic(String title, String message) {
+    public Topic updateTopic(Long id, TopicUpdateDTO data, Long userId) {
+        var topic = getTopicById(id);
+        validateUserIsAuthorOfTopic(userId, topic);
+        validateDuplicatedTopic(data.title(), data.message());
+        topic.update(data);
+        return topic;
+    }
+
+    public Topic deleteTopic(Long id, Long userId) {
+        var topic = getTopicById(id);
+        validateUserIsAuthorOfTopic(userId, topic);
+        repository.deleteById(topic.getId());
+        return topic;
+    }
+
+    private void validateDuplicatedTopic(String title, String message) {
         if (title == null || message == null) return;
 
         var sameTopicFound = repository.findAllByTitleAndMessage(title, message).isPresent();
@@ -53,11 +68,7 @@ public class TopicService {
         }
     }
 
-    public Topic updateTopic(Long id, TopicUpdateDTO data, Long userId) {
-        var topic = getTopicById(id);
-        if (!topic.getUser().getId().equals(userId)) throw new ForbiddenActionException("You don't have permission to update this topic.");
-        validateDuplicatedTopic(data.title(), data.message());
-        topic.update(data);
-        return topic;
+    private void validateUserIsAuthorOfTopic(Long userId, Topic topic) {
+        if (!userId.equals(topic.getUser().getId())) throw new ForbiddenActionException("You don't have permission to update this topic.");
     }
 }
